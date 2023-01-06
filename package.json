@@ -1,5 +1,9 @@
 {
-  "name": "kannon",
+  "name": "@kannon/kannon.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kannon-email/kannon.js"
+  },
   "version": "0.1.0",
   "description": "Kannon node client libreary",
   "main": "lib/kannon.js",
