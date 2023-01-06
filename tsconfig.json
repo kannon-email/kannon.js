@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "ESNext",
+    "module": "Node16",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
     "declaration": true,
     "outDir": "./lib",
     "strict": true

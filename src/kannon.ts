@@ -5,13 +5,14 @@ import { promisifyAll } from './utils/grpc-promisify';
 
 export class KannonCli {
   private readonly client: promisifyAll<proto.MailerClient>;
+  private readonly token: string;
   constructor(
-    host: string,
-    skipTLS: boolean,
-    private readonly senderEmail: string,
-    private readonly senderAlias: string,
-    private readonly token: string,
+    domain: string,
+    apiKey: string,
+    private readonly sender: KannonSender,
+    { host, skipTLS = false }: KannonConfig,
   ) {
+    this.token = Buffer.from(`${domain}:${apiKey}`).toString('base64');
     const credentials = skipTLS ? grpc.credentials.createInsecure() : grpc.credentials.createSsl();
     this.client = promisifyAll(new proto.MailerClient(host, credentials));
   }
@@ -20,7 +21,7 @@ export class KannonCli {
     return this.client.sendHtml(
       {
         html,
-        sender: this.sender(),
+        sender: this.sender,
         subject: subject,
         scheduledTime,
         recipients,
@@ -33,7 +34,7 @@ export class KannonCli {
     return this.client.sendTemplate(
       {
         templateId,
-        sender: this.sender(),
+        sender: this.sender,
         subject: subject,
         scheduledTime,
         recipients,
@@ -47,11 +48,16 @@ export class KannonCli {
     meta.add('authorization', 'Basic ' + this.token);
     return meta;
   }
-
-  private sender() {
-    return {
-      alias: this.senderAlias,
-      email: this.senderEmail,
-    };
-  }
 }
+
+export interface KannonConfig {
+  host: string;
+  skipTLS?: boolean;
+}
+
+export interface KannonSender {
+  email: string;
+  alias: string;
+}
+
+export type { Recipient };
