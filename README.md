@@ -21,11 +21,18 @@ const kannon = new KannonCli(
 Usage
 
 ```ts
-async function sendEmail() {
+async function sendHtml() {
+  const html = `<html>
+<body>
+	<h1>Email from Kannon!</h1>
+	<p>This is a test email from <a href="https://www.kannon.email">Kannon</a></p>
+</body>
+</html>`;
+
   return await kannon.sendMail(
     [{ email: 'test@email.com', fields: {} }],
-    'This is an email kannon.js',
-    'email html',
+    'This is an email from kannon.js',
+    html,
     new Date(), // <- This can be used to chedule email, default now
   );
 }

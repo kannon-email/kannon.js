@@ -17,7 +17,7 @@ export class KannonCli {
     this.client = promisifyAll(new proto.MailerClient(host, credentials));
   }
 
-  async sendMail(recipients: Recipient[], subject: string, html: string, scheduledTime = new Date()) {
+  async sendHtml(recipients: Recipient[], subject: string, html: string, scheduledTime = new Date()) {
     return this.client.sendHtml(
       {
         html,
@@ -30,7 +30,7 @@ export class KannonCli {
     );
   }
 
-  async sendMailTemplate(recipients: Recipient[], subject: string, templateId: string, scheduledTime = new Date()) {
+  async sendTemplate(recipients: Recipient[], subject: string, templateId: string, scheduledTime = new Date()) {
     return this.client.sendTemplate(
       {
         templateId,
