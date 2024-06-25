@@ -18,22 +18,83 @@ const kannon = new KannonCli(
 );
 ```
 
-Usage
+### Basic Usage
 
 ```ts
 async function sendHtml() {
-  const html = `<html>
-<body>
-	<h1>Email from Kannon!</h1>
-	<p>This is a test email from <a href="https://www.kannon.email">Kannon</a></p>
-</body>
-</html>`;
+  const html = `...`;
 
-  return await kannon.sendMail(
+  return await kannon.sendMail([{ email: 'test@email.com', fields: {} }], 'This is an email from kannon.js', html);
+}
+```
+
+### Sending Templates
+
+```ts
+async function sendHtml() {
+  const templateId = `...`;
+
+  return await kannon.sendTemplate(
     [{ email: 'test@email.com', fields: {} }],
     'This is an email from kannon.js',
-    html,
-    new Date(), // <- This can be used to chedule email, default now
+    templateId,
   );
 }
+```
+
+### Sending Attachments
+
+```ts
+const res = await cli.sendHtml(
+  [
+    // ...
+  ],
+  'Send Attachment',
+  html,
+  {
+    attachments: [
+      {
+        filename: 'test.txt',
+        content: Buffer.from('Hello from Kannon!'),
+      },
+    ],
+  },
+);
+```
+
+### Fields and Global Fields
+
+You can customize the html (or the template) per recipient by using fields parameters.
+
+```ts
+const html = `Hello {{name}}!`;
+
+return await kannon.sendMail(
+  [
+    { email: 'test1@email.com', fields: { name: 'test 1' } }
+    { email: 'test2@email.com', fields: { name: 'test 2' } }
+  ],
+  'This is an email from kannon.js',
+  html,
+);
+```
+
+The text between `{{` and `}}` will be replaced by the value of the field.
+
+If you want to use the same field for all recipients, you can use the globalFields parameter.
+
+```ts
+const html = `Hello {{name}}! This is a global field: {{ global }}`;
+
+return await kannon.sendMail(
+  [
+    { email: 'test1@email.com', fields: { name: 'test 1' } }
+    { email: 'test2@email.com', fields: { name: 'test 2' } }
+  ],
+  'This is an email from kannon.js',
+  html,
+  {
+    globalFields: { global: 'global value' }
+  }
+);
 ```
