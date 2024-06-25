@@ -1,5 +1,5 @@
-import * as proto from './proto/kannon/mailer/apiv1/mailerapiv1';
 import * as grpc from '@grpc/grpc-js';
+import * as proto from './proto/kannon/mailer/apiv1/mailerapiv1';
 import { Recipient } from './proto/kannon/mailer/types/send';
 import { promisifyAll } from './utils/grpc-promisify';
 
@@ -17,27 +17,31 @@ export class KannonCli {
     this.client = promisifyAll(new proto.MailerClient(host, credentials));
   }
 
-  async sendHtml(recipients: Recipient[], subject: string, html: string, scheduledTime = new Date()) {
+  async sendHtml(recipients: Recipient[], subject: string, html: string, options: SendOptions = {}) {
     return this.client.sendHtml(
       {
         html,
         sender: this.sender,
         subject: subject,
-        scheduledTime,
         recipients,
+        scheduledTime: options.scheduledTime ?? new Date(),
+        attachments: options.attachments ?? [],
+        globalFields: options.globalFields ?? {},
       },
       this.meta(),
     );
   }
 
-  async sendTemplate(recipients: Recipient[], subject: string, templateId: string, scheduledTime = new Date()) {
+  async sendTemplate(recipients: Recipient[], subject: string, templateId: string, options: SendOptions = {}) {
     return this.client.sendTemplate(
       {
         templateId,
         sender: this.sender,
         subject: subject,
-        scheduledTime,
         recipients,
+        scheduledTime: options.scheduledTime ?? new Date(),
+        attachments: options.attachments ?? [],
+        globalFields: options.globalFields ?? {},
       },
       this.meta(),
     );
@@ -61,3 +65,12 @@ export interface KannonSender {
 }
 
 export type { Recipient };
+
+export type SendOptions = {
+  scheduledTime?: Date;
+  globalFields?: Record<string, string>;
+  attachments?: {
+    filename: string;
+    content: Buffer;
+  }[];
+};

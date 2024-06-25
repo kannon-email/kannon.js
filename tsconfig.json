@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "Node16",
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "declaration": true,
     "outDir": "./lib",
     "strict": true

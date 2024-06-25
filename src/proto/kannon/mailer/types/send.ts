@@ -1,7 +1,7 @@
 /* eslint-disable */
-import _m0 from 'protobufjs/minimal';
+import _m0 from "protobufjs/minimal";
 
-export const protobufPackage = 'pkg.kannon.mailer.types';
+export const protobufPackage = "pkg.kannon.mailer.types";
 
 export interface Sender {
   email: string;
@@ -19,15 +19,15 @@ export interface Recipient_FieldsEntry {
 }
 
 function createBaseSender(): Sender {
-  return { email: '', alias: '' };
+  return { email: "", alias: "" };
 }
 
 export const Sender = {
   encode(message: Sender, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.email !== '') {
+    if (message.email !== "") {
       writer.uint32(10).string(message.email);
     }
-    if (message.alias !== '') {
+    if (message.alias !== "") {
       writer.uint32(18).string(message.alias);
     }
     return writer;
@@ -56,8 +56,8 @@ export const Sender = {
 
   fromJSON(object: any): Sender {
     return {
-      email: isSet(object.email) ? String(object.email) : '',
-      alias: isSet(object.alias) ? String(object.alias) : '',
+      email: isSet(object.email) ? String(object.email) : "",
+      alias: isSet(object.alias) ? String(object.alias) : "",
     };
   },
 
@@ -70,19 +70,19 @@ export const Sender = {
 
   fromPartial<I extends Exact<DeepPartial<Sender>, I>>(object: I): Sender {
     const message = createBaseSender();
-    message.email = object.email ?? '';
-    message.alias = object.alias ?? '';
+    message.email = object.email ?? "";
+    message.alias = object.alias ?? "";
     return message;
   },
 };
 
 function createBaseRecipient(): Recipient {
-  return { email: '', fields: {} };
+  return { email: "", fields: {} };
 }
 
 export const Recipient = {
   encode(message: Recipient, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.email !== '') {
+    if (message.email !== "") {
       writer.uint32(10).string(message.email);
     }
     Object.entries(message.fields).forEach(([key, value]) => {
@@ -117,12 +117,12 @@ export const Recipient = {
 
   fromJSON(object: any): Recipient {
     return {
-      email: isSet(object.email) ? String(object.email) : '',
+      email: isSet(object.email) ? String(object.email) : "",
       fields: isObject(object.fields)
         ? Object.entries(object.fields).reduce<{ [key: string]: string }>((acc, [key, value]) => {
-            acc[key] = String(value);
-            return acc;
-          }, {})
+          acc[key] = String(value);
+          return acc;
+        }, {})
         : {},
     };
   },
@@ -141,7 +141,7 @@ export const Recipient = {
 
   fromPartial<I extends Exact<DeepPartial<Recipient>, I>>(object: I): Recipient {
     const message = createBaseRecipient();
-    message.email = object.email ?? '';
+    message.email = object.email ?? "";
     message.fields = Object.entries(object.fields ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
       if (value !== undefined) {
         acc[key] = String(value);
@@ -153,15 +153,15 @@ export const Recipient = {
 };
 
 function createBaseRecipient_FieldsEntry(): Recipient_FieldsEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const Recipient_FieldsEntry = {
   encode(message: Recipient_FieldsEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -189,7 +189,7 @@ export const Recipient_FieldsEntry = {
   },
 
   fromJSON(object: any): Recipient_FieldsEntry {
-    return { key: isSet(object.key) ? String(object.key) : '', value: isSet(object.value) ? String(object.value) : '' };
+    return { key: isSet(object.key) ? String(object.key) : "", value: isSet(object.value) ? String(object.value) : "" };
   },
 
   toJSON(message: Recipient_FieldsEntry): unknown {
@@ -201,31 +201,25 @@ export const Recipient_FieldsEntry = {
 
   fromPartial<I extends Exact<DeepPartial<Recipient_FieldsEntry>, I>>(object: I): Recipient_FieldsEntry {
     const message = createBaseRecipient_FieldsEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends Array<infer U>
-  ? Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U>
-  ? ReadonlyArray<DeepPartial<U>>
-  : T extends {}
-  ? { [K in keyof T]?: DeepPartial<T[K]> }
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
+export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isObject(value: any): boolean {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {
