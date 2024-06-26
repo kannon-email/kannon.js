@@ -24,7 +24,7 @@ const kannon = new KannonCli(
 async function sendHtml() {
   const html = `...`;
 
-  return await kannon.sendMail([{ email: 'test@email.com', fields: {} }], 'This is an email from kannon.js', html);
+  return await kannon.sendMail(['test@email.com'], 'This is an email from kannon.js', html);
 }
 ```
 
@@ -34,11 +34,7 @@ async function sendHtml() {
 async function sendHtml() {
   const templateId = `...`;
 
-  return await kannon.sendTemplate(
-    [{ email: 'test@email.com', fields: {} }],
-    'This is an email from kannon.js',
-    templateId,
-  );
+  return await kannon.sendTemplate(['test@email.com'], 'This is an email from kannon.js', templateId);
 }
 ```
 
