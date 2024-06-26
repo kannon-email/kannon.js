@@ -1,7 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
 import * as proto from './proto/kannon/mailer/apiv1/mailerapiv1';
-import { Recipient } from './proto/kannon/mailer/types/send';
 import { promisifyAll } from './utils/grpc-promisify';
+import { Recipient, parseRecipent } from './recipent';
 
 export class KannonCli {
   private readonly client: promisifyAll<proto.MailerClient>;
@@ -23,7 +23,7 @@ export class KannonCli {
         html,
         sender: this.sender,
         subject: subject,
-        recipients,
+        recipients: recipients.map(parseRecipent),
         scheduledTime: options.scheduledTime ?? new Date(),
         attachments: options.attachments ?? [],
         globalFields: options.globalFields ?? {},
@@ -38,7 +38,7 @@ export class KannonCli {
         templateId,
         sender: this.sender,
         subject: subject,
-        recipients,
+        recipients: recipients.map(parseRecipent),
         scheduledTime: options.scheduledTime ?? new Date(),
         attachments: options.attachments ?? [],
         globalFields: options.globalFields ?? {},
