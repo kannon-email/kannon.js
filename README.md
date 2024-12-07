@@ -6,7 +6,7 @@ Instantiate kannon cli
 
 ```ts
 const kannon = new KannonCli(
-  '<YOUR DONMAIN>',
+  '<YOUR DOMAIN>',
   '<API KEY>',
   {
     email: 'sender@kannon.dev',
@@ -18,7 +18,7 @@ const kannon = new KannonCli(
 );
 ```
 
-### Basic Usage
+### Basic Usage
 
 ```ts
 async function sendHtml() {
@@ -67,7 +67,7 @@ const html = `Hello {{name}}!`;
 
 return await kannon.sendMail(
   [
-    { email: 'test1@email.com', fields: { name: 'test 1' } }
+    { email: 'test1@email.com', fields: { name: 'test 1' } },
     { email: 'test2@email.com', fields: { name: 'test 2' } }
   ],
   'This is an email from kannon.js',
@@ -84,7 +84,7 @@ const html = `Hello {{name}}! This is a global field: {{ global }}`;
 
 return await kannon.sendMail(
   [
-    { email: 'test1@email.com', fields: { name: 'test 1' } }
+    { email: 'test1@email.com', fields: { name: 'test 1' } },
     { email: 'test2@email.com', fields: { name: 'test 2' } }
   ],
   'This is an email from kannon.js',
