@@ -1,9 +1,14 @@
-version: v1
+version: v2
+inputs:
+  - directory: .proto
 plugins:
-  - name: ts_proto
+  - remote: buf.build/bufbuild/es:v1.10.0
     out: ./src/proto
-    path: ./node_modules/.bin/protoc-gen-ts_proto
-    strategy: all
     opt:
-      - outputServices=grpc-js
-      - esModuleInterop=true
+      - target=ts
+      - import_extension=none
+  - remote: buf.build/connectrpc/es:v1.6.0
+    out: ./src/proto
+    opt:
+      - target=ts
+      - import_extension=none

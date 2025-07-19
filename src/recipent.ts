@@ -1,4 +1,4 @@
-import { Recipient as KannonRecipient } from './proto/kannon/mailer/types/send';
+import { Recipient as KannonRecipient } from './proto/kannon/mailer/types/send_pb.js';
 
 export type Recipient =
   | {
@@ -9,13 +9,13 @@ export type Recipient =
 
 export function parseRecipent(recipient: Recipient): KannonRecipient {
   if (typeof recipient === 'string') {
-    return {
+    return new KannonRecipient({
       email: recipient,
       fields: {},
-    };
+    });
   }
-  return {
+  return new KannonRecipient({
     email: recipient.email,
     fields: recipient.fields ?? {},
-  };
+  });
 }

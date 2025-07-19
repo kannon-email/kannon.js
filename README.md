@@ -1,96 +1,504 @@
-## kannon.js is the official node client library for Kannon Email Sender
+# Kannon.js
 
-#### Usage
+The official Node.js client library for Kannon Email Sender.
 
-Instantiate kannon cli
+## Installation
+
+```bash
+npm install kannon.js
+```
+
+## Quick Start
 
 ```ts
+import { KannonCli } from 'kannon.js';
+
 const kannon = new KannonCli(
-  '<YOUR DOMAIN>',
-  '<API KEY>',
+  'your-domain.com',
+  'your-api-key',
   {
-    email: 'sender@kannon.dev',
+    email: 'sender@your-domain.com', // this should match the domain host
     alias: 'Kannon',
   },
   {
-    host: '<YOU KANNON API HOST>',
+    host: 'https://api.kannon.dev',
   },
+);
+
+// Send a simple HTML email
+await kannon.sendHtml(
+  ['recipient@example.com'],
+  'Welcome to Kannon!',
+  '<h1>Hello!</h1><p>Welcome to our platform.</p>',
 );
 ```
 
-### Basic Usage
+## Usage Examples
+
+### Basic Email Sending
+
+#### Simple HTML Email
 
 ```ts
-async function sendHtml() {
-  const html = `...`;
+const html = `
+  <h1>Welcome to Kannon!</h1>
+  <p>Thank you for signing up.</p>
+  <a href="https://kannon.dev">Visit our website</a>
+`;
 
-  return await kannon.sendMail(['test@email.com'], 'This is an email from kannon.js', html);
-}
+await kannon.sendHtml(['user@example.com'], 'Welcome to Kannon', html);
 ```
 
-### Sending Templates
+#### Multiple Recipients
 
 ```ts
-async function sendHtml() {
-  const templateId = `...`;
+const recipients = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
 
-  return await kannon.sendTemplate(['test@email.com'], 'This is an email from kannon.js', templateId);
-}
+await kannon.sendHtml(recipients, 'Important Update', '<h1>System Update</h1><p>We have important news for you.</p>');
 ```
 
-### Sending Attachments
+#### With Attachments
 
 ```ts
-const res = await cli.sendHtml(
-  [
-    // ...
-  ],
-  'Send Attachment',
-  html,
+import { readFileSync } from 'fs';
+
+const pdfBuffer = readFileSync('./document.pdf');
+
+await kannon.sendHtml(
+  ['client@example.com'],
+  'Your Invoice',
+  '<h1>Invoice Attached</h1><p>Please find your invoice attached.</p>',
   {
     attachments: [
       {
-        filename: 'test.txt',
-        content: Buffer.from('Hello from Kannon!'),
+        filename: 'invoice.pdf',
+        content: pdfBuffer,
+      },
+      {
+        filename: 'terms.txt',
+        content: Buffer.from('Terms and conditions...'),
       },
     ],
   },
 );
 ```
 
-### Fields and Global Fields
+### Template Emails
 
-You can customize the html (or the template) per recipient by using fields parameters.
+#### Using Template IDs
 
 ```ts
-const html = `Hello {{name}}!`;
+await kannon.sendTemplate(['customer@example.com'], 'Your Order Confirmation', 'order-confirmation-template');
+```
 
-return await kannon.sendMail(
-  [
-    { email: 'test1@email.com', fields: { name: 'test 1' } },
-    { email: 'test2@email.com', fields: { name: 'test 2' } }
+#### Templates with Attachments
+
+```ts
+await kannon.sendTemplate(['client@example.com'], 'Monthly Report', 'monthly-report-template', {
+  attachments: [
+    {
+      filename: 'report.pdf',
+      content: reportBuffer,
+    },
   ],
-  'This is an email from kannon.js',
+});
+```
+
+### Personalized Emails
+
+#### Individual Fields
+
+```ts
+const html = `
+  <h1>Hello {{name}}!</h1>
+  <p>Your account balance is: {{balance}}</p>
+  <p>Last login: {{lastLogin}}</p>
+`;
+
+await kannon.sendHtml(
+  [
+    {
+      email: 'john@example.com',
+      fields: {
+        name: 'John',
+        balance: '$1,250',
+        lastLogin: '2024-01-15',
+      },
+    },
+    {
+      email: 'jane@example.com',
+      fields: {
+        name: 'Jane',
+        balance: '$890',
+        lastLogin: '2024-01-14',
+      },
+    },
+  ],
+  'Account Update',
   html,
 );
 ```
 
-The text between `{{` and `}}` will be replaced by the value of the field.
-
-If you want to use the same field for all recipients, you can use the globalFields parameter.
+#### Mixed Recipient Types
 
 ```ts
-const html = `Hello {{name}}! This is a global field: {{ global }}`;
+const recipients = [
+  'simple@example.com', // String format
+  {
+    email: 'personalized@example.com',
+    fields: { name: 'Alice', role: 'Admin' },
+  }, // Object format
+  {
+    email: 'another@example.com',
+    fields: { name: 'Bob', role: 'User' },
+  },
+];
 
-return await kannon.sendMail(
+const html = `
+  <h1>Hello {{name || 'there'}}!</h1>
+  <p>Your role: {{role || 'Guest'}}</p>
+`;
+
+await kannon.sendHtml(recipients, 'Welcome', html);
+```
+
+### Global Fields
+
+#### Shared Content for All Recipients
+
+```ts
+const html = `
+  <h1>Hello {{name}}!</h1>
+  <p>This is a message from {{company}}.</p>
+  <p>Current date: {{currentDate}}</p>
+  <p>Support email: {{supportEmail}}</p>
+`;
+
+await kannon.sendHtml(
   [
-    { email: 'test1@email.com', fields: { name: 'test 1' } },
-    { email: 'test2@email.com', fields: { name: 'test 2' } }
+    { email: 'user1@example.com', fields: { name: 'John' } },
+    { email: 'user2@example.com', fields: { name: 'Jane' } },
   ],
-  'This is an email from kannon.js',
+  'Company Update',
   html,
   {
-    globalFields: { global: 'global value' }
-  }
+    globalFields: {
+      company: 'Kannon Corp',
+      currentDate: new Date().toLocaleDateString(),
+      supportEmail: 'support@kannon.dev',
+    },
+  },
 );
 ```
+
+### Scheduled Emails
+
+#### Future Delivery
+
+```ts
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+
+await kannon.sendHtml(
+  ['user@example.com'],
+  "Tomorrow's Reminder",
+  "<h1>Don't forget!</h1><p>Your meeting is tomorrow.</p>",
+  {
+    scheduledTime: tomorrow,
+  },
+);
+```
+
+#### Specific Date and Time
+
+```ts
+const scheduledTime = new Date('2024-02-01T10:00:00Z');
+
+await kannon.sendTemplate(['subscriber@example.com'], 'Weekly Newsletter', 'newsletter-template', {
+  scheduledTime,
+  globalFields: {
+    weekNumber: '5',
+    year: '2024',
+  },
+});
+```
+
+### Advanced Configuration
+
+#### Custom Domain Setup
+
+```ts
+const kannon = new KannonCli(
+  'mycompany.com',
+  'your-api-key',
+  {
+    email: 'noreply@mycompany.com',
+    alias: 'My Company',
+  },
+  {
+    host: 'https://api.mycompany.com',
+  },
+);
+```
+
+#### Development Environment
+
+```ts
+const kannon = new KannonCli(
+  'dev.example.com',
+  'dev-api-key',
+  {
+    email: 'test@dev.example.com',
+    alias: 'Dev Environment',
+  },
+  {
+    host: 'http://localhost:8080', // HTTP for local development
+  },
+);
+```
+
+#### Production with Custom Port
+
+```ts
+const kannon = new KannonCli(
+  'production.com',
+  'prod-api-key',
+  {
+    email: 'noreply@production.com',
+    alias: 'Production System',
+  },
+  {
+    host: 'https://api.production.com:8443', // Custom HTTPS port
+  },
+);
+```
+
+## API Reference
+
+### KannonCli Constructor
+
+```ts
+new KannonCli(
+  domain: string,
+  apiKey: string,
+  sender: KannonSender,
+  config: KannonConfig
+)
+```
+
+#### Parameters:
+
+- `domain`: Your Kannon domain
+- `apiKey`: Your Kannon API key
+- `sender`: Sender configuration
+  - `email`: Sender email address
+  - `alias`: Sender display name
+- `config`: Client configuration
+  - `host`: API endpoint (must include protocol)
+
+### Methods
+
+#### sendHtml(recipients, subject, html, options?)
+
+Sends an HTML email.
+
+**Parameters:**
+
+- `recipients`: Array of recipients (strings or objects with fields)
+- `subject`: Email subject line
+- `html`: HTML content of the email
+- `options`: Optional configuration
+
+#### sendTemplate(recipients, subject, templateId, options?)
+
+Sends a template email.
+
+**Parameters:**
+
+- `recipients`: Array of recipients (strings or objects with fields)
+- `subject`: Email subject line
+- `templateId`: ID of the template to use
+- `options`: Optional configuration
+
+### Options
+
+```ts
+type SendOptions = {
+  scheduledTime?: Date; // When to send the email
+  globalFields?: Record<string, string>; // Fields shared by all recipients
+  attachments?: {
+    // File attachments
+    filename: string;
+    content: Buffer;
+  }[];
+};
+```
+
+### Types
+
+```ts
+type Recipient =
+  | string // Simple email address
+  | {
+      // Email with personalized fields
+      email: string;
+      fields?: Record<string, string>;
+    };
+
+type KannonSender = {
+  email: string;
+  alias: string;
+};
+
+type KannonConfig = {
+  host: string;
+  skipTLS?: boolean;
+};
+```
+
+## Error Handling
+
+```ts
+try {
+  await kannon.sendHtml(['user@example.com'], 'Test Email', '<h1>Hello</h1>');
+  console.log('Email sent successfully!');
+} catch (error) {
+  console.error('Failed to send email:', error.message);
+
+  if (error.code === 'AUTHENTICATION_FAILED') {
+    console.error('Check your API key and domain');
+  } else if (error.code === 'INVALID_RECIPIENT') {
+    console.error('Check recipient email addresses');
+  }
+}
+```
+
+## Best Practices
+
+### 1. Use Meaningful Subject Lines
+
+```ts
+// Good
+await kannon.sendHtml(recipients, 'Welcome to Our Platform - Get Started Today', html);
+
+// Avoid
+await kannon.sendHtml(recipients, 'Email', html);
+```
+
+### 2. Validate Recipients
+
+```ts
+const validRecipients = recipients.filter((recipient) => {
+  const email = typeof recipient === 'string' ? recipient : recipient.email;
+  return email.includes('@') && email.includes('.');
+});
+
+if (validRecipients.length === 0) {
+  throw new Error('No valid recipients provided');
+}
+```
+
+### 3. Handle Large Recipient Lists
+
+```ts
+const batchSize = 100;
+const allRecipients = [
+  /* large array */
+];
+
+for (let i = 0; i < allRecipients.length; i += batchSize) {
+  const batch = allRecipients.slice(i, i + batchSize);
+
+  await kannon.sendHtml(batch, 'Batch Email', html);
+
+  // Add delay between batches
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+}
+```
+
+### 4. Use Environment Variables
+
+```ts
+import { KannonCli } from 'kannon.js';
+
+const kannon = new KannonCli(
+  process.env.KANNON_DOMAIN!,
+  process.env.KANNON_API_KEY!,
+  {
+    email: process.env.KANNON_SENDER_EMAIL!,
+    alias: process.env.KANNON_SENDER_ALIAS!,
+  },
+  {
+    host: process.env.KANNON_API_HOST!,
+  },
+);
+```
+
+## 🚨 Breaking Changes in v0.1.3
+
+This version introduces breaking changes due to the migration from ts-proto to connect-es:
+
+### Host Configuration Changes
+
+**Before (v0.1.2 and earlier):**
+
+```ts
+const kannon = new KannonCli(
+  'your-domain.com',
+  'your-api-key',
+  { email: 'sender@kannon.dev', alias: 'Kannon' },
+  { host: 'api.kannon.dev:443' }, // ❌ Old format
+);
+```
+
+**After (v0.1.3+):**
+
+```ts
+const kannon = new KannonCli(
+  'your-domain.com',
+  'your-api-key',
+  { email: 'sender@kannon.dev', alias: 'Kannon' },
+  { host: 'https://api.kannon.dev' }, // ✅ New format with protocol
+);
+```
+
+### Key Changes:
+
+- **Protocol required**: You must now specify the protocol (`https://` or `http://`)
+- **Port optional**: Standard ports (443 for HTTPS, 80 for HTTP) are automatically used
+- **TLS handling**: The `skipTLS` option is no longer supported
+
+### Migration Examples:
+
+| Old Format           | New Format               |
+| -------------------- | ------------------------ |
+| `api.kannon.dev:443` | `https://api.kannon.dev` |
+| `api.kannon.dev:80`  | `http://api.kannon.dev`  |
+| `localhost:8080`     | `http://localhost:8080`  |
+| `localhost:8443`     | `https://localhost:8443` |
+
+### Migration Guide
+
+If you're upgrading from v0.1.2 or earlier:
+
+1. **Update host configuration** to include protocol
+2. **Remove port numbers** if using standard ports (443/80)
+3. **Test your integration** to ensure compatibility
+
+Example migration:
+
+```ts
+// Before
+const kannon = new KannonCli('domain', 'key', sender, {
+  host: 'api.kannon.dev:443',
+});
+
+// After
+const kannon = new KannonCli('domain', 'key', sender, {
+  host: 'https://api.kannon.dev',
+});
+```
+
+## License
+
+ISC
