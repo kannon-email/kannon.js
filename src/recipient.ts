@@ -7,7 +7,7 @@ export type Recipient =
     }
   | string;
 
-export function parseRecipent(recipient: Recipient): KannonRecipient {
+export function parseRecipient(recipient: Recipient): KannonRecipient {
   if (typeof recipient === 'string') {
     return new KannonRecipient({
       email: recipient,

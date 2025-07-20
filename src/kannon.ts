@@ -4,7 +4,7 @@ import { Mailer } from './proto/kannon/mailer/apiv1/mailerapiv1_connect.js';
 import { Timestamp } from '@bufbuild/protobuf';
 import { SendHTMLReq, SendTemplateReq, Attachment, SendRes } from './proto/kannon/mailer/apiv1/mailerapiv1_pb.js';
 import { Sender } from './proto/kannon/mailer/types/send_pb.js';
-import { Recipient, parseRecipent } from './recipient.js';
+import { Recipient, parseRecipient } from './recipient.js';
 
 export class KannonCli {
   private readonly client: ReturnType<typeof createClient<typeof Mailer>>;
@@ -35,7 +35,7 @@ export class KannonCli {
         alias: this.sender.alias,
       }),
       subject: subject,
-      recipients: recipients.map(parseRecipent),
+      recipients: recipients.map(parseRecipient),
       scheduledTime: options.scheduledTime ? Timestamp.fromDate(options.scheduledTime) : undefined,
       attachments: (options.attachments ?? []).map(
         (att) =>
@@ -69,7 +69,7 @@ export class KannonCli {
         alias: this.sender.alias,
       }),
       subject: subject,
-      recipients: recipients.map(parseRecipent),
+      recipients: recipients.map(parseRecipient),
       scheduledTime: options.scheduledTime ? Timestamp.fromDate(options.scheduledTime) : undefined,
       attachments: (options.attachments ?? []).map(
         (att) =>

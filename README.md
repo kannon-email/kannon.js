@@ -372,74 +372,13 @@ try {
 }
 ```
 
-## Best Practices
-
-### 1. Use Meaningful Subject Lines
-
-```ts
-// Good
-await kannon.sendHtml(recipients, 'Welcome to Our Platform - Get Started Today', html);
-
-// Avoid
-await kannon.sendHtml(recipients, 'Email', html);
-```
-
-### 2. Validate Recipients
-
-```ts
-const validRecipients = recipients.filter((recipient) => {
-  const email = typeof recipient === 'string' ? recipient : recipient.email;
-  return email.includes('@') && email.includes('.');
-});
-
-if (validRecipients.length === 0) {
-  throw new Error('No valid recipients provided');
-}
-```
-
-### 3. Handle Large Recipient Lists
-
-```ts
-const batchSize = 100;
-const allRecipients = [
-  /* large array */
-];
-
-for (let i = 0; i < allRecipients.length; i += batchSize) {
-  const batch = allRecipients.slice(i, i + batchSize);
-
-  await kannon.sendHtml(batch, 'Batch Email', html);
-
-  // Add delay between batches
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-}
-```
-
-### 4. Use Environment Variables
-
-```ts
-import { KannonCli } from 'kannon.js';
-
-const kannon = new KannonCli(
-  process.env.KANNON_DOMAIN!,
-  process.env.KANNON_API_KEY!,
-  {
-    email: process.env.KANNON_SENDER_EMAIL!,
-    alias: process.env.KANNON_SENDER_ALIAS!,
-  },
-  {
-    endpoint: process.env.KANNON_API_HOST!,
-  },
-);
-```
-
-## 🚨 Breaking Changes in v0.1.3
+## 🚨 Breaking Changes in v1.0.0
 
 This version introduces breaking changes due to the migration from ts-proto to connect-es:
 
 ### Endpoint Configuration Changes
 
-**Before (v0.1.2 and earlier):**
+**Before (v1.0.0):**
 
 ```ts
 const kannon = new KannonCli(
@@ -450,7 +389,7 @@ const kannon = new KannonCli(
 );
 ```
 
-**After (v0.1.3+):**
+**After (v1.0.0):**
 
 ```ts
 const kannon = new KannonCli(
@@ -479,7 +418,7 @@ const kannon = new KannonCli(
 
 ### Migration Guide
 
-If you're upgrading from v0.1.2 or earlier:
+If you're upgrading from v1.0.0:
 
 1. **Update endpoint configuration** to include protocol
 2. **Rename `host` to `endpoint`** in your configuration
