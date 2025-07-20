@@ -1,5 +1,7 @@
 # Kannon.js
 
+[![CI](https://github.com/kannon-email/kannon.js/actions/workflows/ci.yml/badge.svg)](https://github.com/kannon-email/kannon.js/actions/workflows/ci.yml)
+
 The official Node.js client library for Kannon Email Sender.
 
 ## Installation
