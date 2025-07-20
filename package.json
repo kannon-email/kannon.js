@@ -10,7 +10,7 @@
   "main": "lib/kannon.js",
   "types": "lib/kannon.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf lib && tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "test": "vitest",
     "test:ui": "vitest --ui",

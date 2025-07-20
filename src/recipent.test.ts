@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { parseRecipent, type Recipient } from '../recipient';
+import { parseRecipient, type Recipient } from './recipient';
 
 describe('parseRecipent', () => {
   it('should parse string recipient correctly', () => {
     const recipient: Recipient = 'test@example.com';
-    const result = parseRecipent(recipient);
+    const result = parseRecipient(recipient);
 
     expect(result).toEqual({
       email: 'test@example.com',
@@ -16,7 +16,7 @@ describe('parseRecipent', () => {
     const recipient: Recipient = {
       email: 'test@example.com',
     };
-    const result = parseRecipent(recipient);
+    const result = parseRecipient(recipient);
 
     expect(result).toEqual({
       email: 'test@example.com',
@@ -32,7 +32,7 @@ describe('parseRecipent', () => {
         company: 'Test Corp',
       },
     };
-    const result = parseRecipent(recipient);
+    const result = parseRecipient(recipient);
 
     expect(result).toEqual({
       email: 'test@example.com',
@@ -48,7 +48,7 @@ describe('parseRecipent', () => {
       email: 'test@example.com',
       fields: undefined,
     };
-    const result = parseRecipent(recipient);
+    const result = parseRecipient(recipient);
 
     expect(result).toEqual({
       email: 'test@example.com',
@@ -61,7 +61,7 @@ describe('parseRecipent', () => {
       email: 'test@example.com',
       fields: {},
     };
-    const result = parseRecipent(recipient);
+    const result = parseRecipient(recipient);
 
     expect(result).toEqual({
       email: 'test@example.com',
@@ -79,7 +79,7 @@ describe('parseRecipent', () => {
         preferences: '["email", "sms"]',
       },
     };
-    const result = parseRecipent(recipient);
+    const result = parseRecipient(recipient);
 
     expect(result).toEqual({
       email: 'test@example.com',

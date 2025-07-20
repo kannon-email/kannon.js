@@ -13,11 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "lib"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib", "**/*.test.ts", "**/*.spec.ts"]
 }
