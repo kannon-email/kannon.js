@@ -21,7 +21,7 @@ const kannon = new KannonCli(
     alias: 'Kannon',
   },
   {
-    host: 'https://api.kannon.dev',
+    endpoint: 'https://api.kannon.dev',
   },
 );
 
@@ -236,7 +236,7 @@ const kannon = new KannonCli(
     alias: 'My Company',
   },
   {
-    host: 'https://api.mycompany.com',
+    endpoint: 'https://api.mycompany.com',
   },
 );
 ```
@@ -252,7 +252,7 @@ const kannon = new KannonCli(
     alias: 'Dev Environment',
   },
   {
-    host: 'http://localhost:8080', // HTTP for local development
+    endpoint: 'http://localhost:8080', // HTTP for local development
   },
 );
 ```
@@ -268,7 +268,7 @@ const kannon = new KannonCli(
     alias: 'Production System',
   },
   {
-    host: 'https://api.production.com:8443', // Custom HTTPS port
+    endpoint: 'https://api.production.com:8443', // Custom HTTPS port
   },
 );
 ```
@@ -294,7 +294,7 @@ new KannonCli(
   - `email`: Sender email address
   - `alias`: Sender display name
 - `config`: Client configuration
-  - `host`: API endpoint (must include protocol)
+  - `endpoint`: API endpoint (must include protocol)
 
 ### Methods
 
@@ -351,8 +351,7 @@ type KannonSender = {
 };
 
 type KannonConfig = {
-  host: string;
-  skipTLS?: boolean;
+  endpoint: string;
 };
 ```
 
@@ -429,7 +428,7 @@ const kannon = new KannonCli(
     alias: process.env.KANNON_SENDER_ALIAS!,
   },
   {
-    host: process.env.KANNON_API_HOST!,
+    endpoint: process.env.KANNON_API_HOST!,
   },
 );
 ```
@@ -438,7 +437,7 @@ const kannon = new KannonCli(
 
 This version introduces breaking changes due to the migration from ts-proto to connect-es:
 
-### Host Configuration Changes
+### Endpoint Configuration Changes
 
 **Before (v0.1.2 and earlier):**
 
@@ -458,7 +457,7 @@ const kannon = new KannonCli(
   'your-domain.com',
   'your-api-key',
   { email: 'sender@kannon.dev', alias: 'Kannon' },
-  { host: 'https://api.kannon.dev' }, // ✅ New format with protocol
+  { endpoint: 'https://api.kannon.dev' }, // ✅ New format with protocol
 );
 ```
 
@@ -467,10 +466,11 @@ const kannon = new KannonCli(
 - **Protocol required**: You must now specify the protocol (`https://` or `http://`)
 - **Port optional**: Standard ports (443 for HTTPS, 80 for HTTP) are automatically used
 - **TLS handling**: The `skipTLS` option is no longer supported
+- **Parameter renamed**: `host` parameter is now `endpoint` for clarity
 
 ### Migration Examples:
 
-| Old Format           | New Format               |
+| Old Format (host)    | New Format (endpoint)    |
 | -------------------- | ------------------------ |
 | `api.kannon.dev:443` | `https://api.kannon.dev` |
 | `api.kannon.dev:80`  | `http://api.kannon.dev`  |
@@ -481,9 +481,10 @@ const kannon = new KannonCli(
 
 If you're upgrading from v0.1.2 or earlier:
 
-1. **Update host configuration** to include protocol
-2. **Remove port numbers** if using standard ports (443/80)
-3. **Test your integration** to ensure compatibility
+1. **Update endpoint configuration** to include protocol
+2. **Rename `host` to `endpoint`** in your configuration
+3. **Remove port numbers** if using standard ports (443/80)
+4. **Test your integration** to ensure compatibility
 
 Example migration:
 
@@ -495,7 +496,15 @@ const kannon = new KannonCli('domain', 'key', sender, {
 
 // After
 const kannon = new KannonCli('domain', 'key', sender, {
-  host: 'https://api.kannon.dev',
+  endpoint: 'https://api.kannon.dev',
+});
+```
+
+The `host` parameter is removed. Please use `endpoint` instead:
+
+```ts
+const kannon = new KannonCli('domain', 'key', sender, {
+  endpoint: 'https://api.kannon.dev',
 });
 ```
 
