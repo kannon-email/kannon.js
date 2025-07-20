@@ -1,11 +1,9 @@
-version: v1beta1
-build:
-  roots:
-    - ./proto
+version: v2
+modules:
+  - path: .proto
 lint:
   use:
-    - BASIC
-    - FILE_LOWER_SNAKE_CASE
+    - STANDARD
   except:
     - ENUM_NO_ALLOW_ALIAS
     - IMPORT_NO_PUBLIC
@@ -14,4 +12,4 @@ lint:
     - PACKAGE_SAME_DIRECTORY
 breaking:
   use:
-    - WIRE_JSON
+    - FILE
