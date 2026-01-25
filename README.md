@@ -35,7 +35,99 @@ await kannon.sendHtml(
 );
 ```
 
-## Usage Examples
+## MailSender - Simple Email API
+
+For straightforward email sending without templating, use `MailSender`. It provides a traditional mail client API with To, CC, and BCC support.
+
+### Basic Usage
+
+```ts
+import { KannonCli, MailSender } from 'kannon.js';
+
+const kannon = new KannonCli(
+  'your-domain.com',
+  'your-api-key',
+  { email: 'sender@your-domain.com', alias: 'Kannon' },
+  { endpoint: 'https://api.kannon.dev' },
+);
+
+const mailSender = new MailSender(kannon);
+
+await mailSender.send({
+  to: 'user@example.com',
+  subject: 'Hello',
+  content: '<p>Hello, World!</p>',
+});
+```
+
+### With CC and BCC
+
+```ts
+await mailSender.send({
+  to: ['alice@example.com', 'bob@example.com'],
+  cc: 'manager@example.com',
+  bcc: 'archive@example.com',
+  subject: 'Project Update',
+  content: '<h1>Status Report</h1><p>All systems operational.</p>',
+});
+```
+
+### With Attachments
+
+```ts
+import { readFileSync } from 'fs';
+
+await mailSender.send({
+  to: 'client@example.com',
+  subject: 'Monthly Report',
+  content: '<h1>Report</h1><p>See attachment.</p>',
+  attachments: [
+    {
+      filename: 'report.pdf',
+      content: readFileSync('./report.pdf'),
+    },
+  ],
+});
+```
+
+### Scheduled Delivery
+
+```ts
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+
+await mailSender.send({
+  to: 'user@example.com',
+  subject: 'Scheduled Reminder',
+  content: '<p>This email was scheduled.</p>',
+  scheduledTime: tomorrow,
+});
+```
+
+### MailSender API Reference
+
+#### SendParams
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `to` | `string \| string[]` | Yes | Primary recipient(s) |
+| `subject` | `string` | Yes | Email subject line |
+| `content` | `string` | Yes | HTML email body |
+| `cc` | `string \| string[]` | No | Carbon copy recipients (visible to all) |
+| `bcc` | `string \| string[]` | No | Blind carbon copy recipients (hidden) |
+| `attachments` | `Attachment[]` | No | File attachments |
+| `scheduledTime` | `Date` | No | Schedule for future delivery |
+
+#### SendResult
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `messageId` | `string` | Unique identifier for the sent message |
+| `scheduledTime` | `Date \| undefined` | Scheduled delivery time (if applicable) |
+
+---
+
+## Usage Examples (KannonCli)
 
 ### Basic Email Sending
 
