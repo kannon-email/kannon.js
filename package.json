@@ -17,6 +17,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:email": "tsx scripts/send-test-email.ts",
     "prepare": "husky"
   },
   "author": "ludusrusso",
@@ -29,6 +30,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
     "husky": "^9.1.7",
+    "tsx": "^4.21.0",
     "ultracite": "7.0.12",
     "vitest": "^4.0.18"
   },
