@@ -7,8 +7,8 @@
   },
   "version": "0.1.3",
   "description": "Kannon node client libreary",
-  "main": "lib/kannon.js",
-  "types": "lib/kannon.d.ts",
+  "main": "lib/mod.js",
+  "types": "lib/mod.d.ts",
   "scripts": {
     "build": "rm -rf lib && tsc",
     "typecheck": "tsc --noEmit --strict",
