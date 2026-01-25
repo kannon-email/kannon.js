@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/ludusrusso/kannon/proto/kannon/mailer/apiv1";
+option go_package = "github.com/kannon-email/kannon/proto/kannon/mailer/apiv1";
 
 import "google/protobuf/timestamp.proto";
 import "kannon/mailer/types/send.proto";
@@ -24,6 +24,7 @@ message SendHTMLReq {
   repeated pkg.kannon.mailer.types.Recipient recipients = 6;
   repeated Attachment attachments = 7;
   map<string, string> global_fields = 8;
+  optional pkg.kannon.mailer.types.Headers headers = 9;
 }
 
 message SendTemplateReq {
@@ -34,6 +35,7 @@ message SendTemplateReq {
   repeated pkg.kannon.mailer.types.Recipient recipients = 6;
   repeated Attachment attachments = 7;
   map<string, string> global_fields = 8;
+  optional pkg.kannon.mailer.types.Headers headers = 9;
 }
 
 message SendRes {

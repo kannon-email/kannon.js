@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package pkg.kannon.mailer.types;
 
-option go_package = "github.com/ludusrusso/kannon/proto/kannon/mailer/types";
+option go_package = "github.com/kannon-email/kannon/proto/kannon/mailer/types";
 
 message Sender {
   string email = 1;
@@ -12,4 +12,9 @@ message Sender {
 message Recipient {
   string email = 1;
   map<string, string> fields = 2;
+}
+
+message Headers {
+  repeated string to = 1;
+  repeated string cc = 2;
 }

@@ -9,7 +9,7 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
@@ -18,43 +18,49 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Run linting
-      run: npm run lint
+      run: pnpm run lint
 
     - name: Run tests
-      run: npm run test:run
+      run: pnpm run test:run
 
     - name: Build project
-      run: npm run build
+      run: pnpm run build
 
     - name: Test coverage (Node 20 only)
       if: matrix.node-version == '20.x'
-      run: npm run test:coverage
+      run: pnpm run test:coverage
 
   type-check:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: TypeScript strict type check
-      run: npx tsc --noEmit --strict
+      run: pnpm run typecheck

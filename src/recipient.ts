@@ -1,4 +1,8 @@
-import { Recipient as KannonRecipient } from './proto/kannon/mailer/types/send_pb.js';
+import { create } from "@bufbuild/protobuf";
+import {
+  type Recipient as KannonRecipient,
+  RecipientSchema,
+} from "./proto/kannon/mailer/types/send_pb.js";
 
 export type Recipient =
   | {
@@ -8,13 +12,10 @@ export type Recipient =
   | string;
 
 export function parseRecipient(recipient: Recipient): KannonRecipient {
-  if (typeof recipient === 'string') {
-    return new KannonRecipient({
-      email: recipient,
-      fields: {},
-    });
+  if (typeof recipient === "string") {
+    return create(RecipientSchema, { email: recipient, fields: {} });
   }
-  return new KannonRecipient({
+  return create(RecipientSchema, {
     email: recipient.email,
     fields: recipient.fields ?? {},
   });

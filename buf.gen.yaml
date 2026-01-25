@@ -1,13 +1,9 @@
 version: v2
 inputs:
   - directory: .proto
+clean: true
 plugins:
-  - remote: buf.build/bufbuild/es:v1.10.0
-    out: ./src/proto
-    opt:
-      - target=ts
-      - import_extension=none
-  - remote: buf.build/connectrpc/es:v1.6.0
+  - local: protoc-gen-es
     out: ./src/proto
     opt:
       - target=ts
