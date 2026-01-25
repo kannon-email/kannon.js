@@ -6,16 +6,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@kannon'
-      - run: npm ci
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
       - run: npm --no-git-tag-version --preid=beta version ${{github.ref_name}}
-      - run: npm run build
-      - run: npm publish --access public
+      - run: pnpm run build
+      - run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

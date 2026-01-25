@@ -1,21 +1,33 @@
-import { createClient } from '@connectrpc/connect';
-import { createGrpcTransport } from '@connectrpc/connect-node';
-import { Mailer } from './proto/kannon/mailer/apiv1/mailerapiv1_connect.js';
-import { Timestamp } from '@bufbuild/protobuf';
-import { SendHTMLReq, SendTemplateReq, Attachment, SendRes } from './proto/kannon/mailer/apiv1/mailerapiv1_pb.js';
-import { Sender } from './proto/kannon/mailer/types/send_pb.js';
-import { Recipient, parseRecipient } from './recipient.js';
+import { create } from "@bufbuild/protobuf";
+import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
+import { createClient } from "@connectrpc/connect";
+import { createGrpcTransport } from "@connectrpc/connect-node";
+import {
+  AttachmentSchema,
+  Mailer,
+  SendHTMLReqSchema,
+  type SendRes,
+  SendTemplateReqSchema,
+} from "./proto/kannon/mailer/apiv1/mailerapiv1_pb.js";
+import { SenderSchema } from "./proto/kannon/mailer/types/send_pb.js";
+import { parseRecipient, type Recipient } from "./recipient.js";
 
 export class KannonCli {
   private readonly client: ReturnType<typeof createClient<typeof Mailer>>;
   private readonly token: string;
+  private readonly sender: KannonSender;
 
-  constructor(domain: string, apiKey: string, private readonly sender: KannonSender, config: KannonConfig) {
-    this.token = Buffer.from(`${domain}:${apiKey}`).toString('base64');
+  constructor(
+    domain: string,
+    apiKey: string,
+    sender: KannonSender,
+    config: KannonConfig
+  ) {
+    this.token = Buffer.from(`${domain}:${apiKey}`).toString("base64");
+    this.sender = sender;
 
     const transport = createGrpcTransport({
       baseUrl: config.endpoint,
-      httpVersion: '2',
       useBinaryFormat: true,
     });
 
@@ -26,30 +38,31 @@ export class KannonCli {
     recipients: Recipient[],
     subject: string,
     html: string,
-    options: SendOptions = {},
+    options: SendOptions = {}
   ): Promise<KannonResult> {
-    const request = new SendHTMLReq({
+    const request = create(SendHTMLReqSchema, {
       html,
-      sender: new Sender({
+      sender: create(SenderSchema, {
         email: this.sender.email,
         alias: this.sender.alias,
       }),
-      subject: subject,
+      subject,
       recipients: recipients.map(parseRecipient),
-      scheduledTime: options.scheduledTime ? Timestamp.fromDate(options.scheduledTime) : undefined,
-      attachments: (options.attachments ?? []).map(
-        (att) =>
-          new Attachment({
-            filename: att.filename,
-            content: att.content,
-          }),
+      scheduledTime: options.scheduledTime
+        ? timestampFromDate(options.scheduledTime)
+        : undefined,
+      attachments: (options.attachments ?? []).map((att) =>
+        create(AttachmentSchema, {
+          filename: att.filename,
+          content: att.content,
+        })
       ),
       globalFields: options.globalFields ?? {},
     });
 
     const res = await this.client.sendHTML(request, {
       headers: {
-        authorization: 'Basic ' + this.token,
+        authorization: `Basic ${this.token}`,
       },
     });
 
@@ -60,30 +73,31 @@ export class KannonCli {
     recipients: Recipient[],
     subject: string,
     templateId: string,
-    options: SendOptions = {},
+    options: SendOptions = {}
   ): Promise<KannonResult> {
-    const request = new SendTemplateReq({
+    const request = create(SendTemplateReqSchema, {
       templateId,
-      sender: new Sender({
+      sender: create(SenderSchema, {
         email: this.sender.email,
         alias: this.sender.alias,
       }),
-      subject: subject,
+      subject,
       recipients: recipients.map(parseRecipient),
-      scheduledTime: options.scheduledTime ? Timestamp.fromDate(options.scheduledTime) : undefined,
-      attachments: (options.attachments ?? []).map(
-        (att) =>
-          new Attachment({
-            filename: att.filename,
-            content: att.content,
-          }),
+      scheduledTime: options.scheduledTime
+        ? timestampFromDate(options.scheduledTime)
+        : undefined,
+      attachments: (options.attachments ?? []).map((att) =>
+        create(AttachmentSchema, {
+          filename: att.filename,
+          content: att.content,
+        })
       ),
       globalFields: options.globalFields ?? {},
     });
 
     const res = await this.client.sendTemplate(request, {
       headers: {
-        authorization: 'Basic ' + this.token,
+        authorization: `Basic ${this.token}`,
       },
     });
 
@@ -114,27 +128,27 @@ export interface KannonSender {
   alias: string;
 }
 
-export type { Recipient };
-
-export type SendOptions = {
+export interface SendOptions {
   scheduledTime?: Date;
   globalFields?: Record<string, string>;
   attachments?: {
     filename: string;
     content: Buffer;
   }[];
-};
+}
 
-export type KannonResult = {
+export interface KannonResult {
   messageId: string;
   templateId: string;
   scheduledTime: Date;
-};
+}
 
 function parseResult(result: SendRes): KannonResult {
   return {
     messageId: result.messageId,
     templateId: result.templateId,
-    scheduledTime: result.scheduledTime ? result.scheduledTime.toDate() : new Date(),
+    scheduledTime: result.scheduledTime
+      ? timestampDate(result.scheduledTime)
+      : new Date(),
   };
 }
