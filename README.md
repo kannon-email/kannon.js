@@ -225,6 +225,39 @@ await kannon.sendTemplate(['subscriber@example.com'], 'Weekly Newsletter', 'news
 });
 ```
 
+### Email Headers (To/CC)
+
+#### Adding CC Recipients
+
+```ts
+await kannon.sendHtml(
+  ['primary@example.com'],
+  'Project Update',
+  '<h1>Project Status</h1><p>Here is the latest update.</p>',
+  {
+    headers: {
+      cc: ['manager@example.com', 'team-lead@example.com'],
+    },
+  },
+);
+```
+
+#### Custom To Header
+
+```ts
+await kannon.sendHtml(
+  ['recipient@example.com'],
+  'Meeting Invitation',
+  '<h1>You are invited!</h1><p>Please join us for the quarterly review.</p>',
+  {
+    headers: {
+      to: ['team@example.com'],
+      cc: ['stakeholders@example.com'],
+    },
+  },
+);
+```
+
 ### Advanced Configuration
 
 #### Custom Domain Setup
@@ -333,6 +366,11 @@ type SendOptions = {
     filename: string;
     content: Buffer;
   }[];
+  headers?: {
+    // Email headers
+    to?: string[]; // Additional To header addresses
+    cc?: string[]; // CC header addresses
+  };
 };
 ```
 

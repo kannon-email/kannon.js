@@ -9,7 +9,10 @@ import {
   type SendRes,
   SendTemplateReqSchema,
 } from "./proto/kannon/mailer/apiv1/mailerapiv1_pb.js";
-import { SenderSchema } from "./proto/kannon/mailer/types/send_pb.js";
+import {
+  HeadersSchema,
+  SenderSchema,
+} from "./proto/kannon/mailer/types/send_pb.js";
 import { parseRecipient, type Recipient } from "./recipient.js";
 
 export class KannonCli {
@@ -58,6 +61,12 @@ export class KannonCli {
         })
       ),
       globalFields: options.globalFields ?? {},
+      headers: options.headers
+        ? create(HeadersSchema, {
+            to: options.headers.to ?? [],
+            cc: options.headers.cc ?? [],
+          })
+        : undefined,
     });
 
     const res = await this.client.sendHTML(request, {
@@ -93,6 +102,12 @@ export class KannonCli {
         })
       ),
       globalFields: options.globalFields ?? {},
+      headers: options.headers
+        ? create(HeadersSchema, {
+            to: options.headers.to ?? [],
+            cc: options.headers.cc ?? [],
+          })
+        : undefined,
     });
 
     const res = await this.client.sendTemplate(request, {
@@ -135,6 +150,10 @@ export interface SendOptions {
     filename: string;
     content: Buffer;
   }[];
+  headers?: {
+    to?: string[];
+    cc?: string[];
+  };
 }
 
 export interface KannonResult {
