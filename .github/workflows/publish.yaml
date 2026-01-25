@@ -18,7 +18,6 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
-      - run: npm --no-git-tag-version --preid=beta version ${{github.ref_name}}
       - run: pnpm run build
       - run: pnpm publish --access public --no-git-checks
         env:
