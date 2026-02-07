@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.0.0](https://github.com/kannon-email/kannon.js/compare/kannon.js-v1.0.2...kannon.js-v2.0.0) (2026-02-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* refactor methods with better names
+
+### Features
+
+* add automation ([680816a](https://github.com/kannon-email/kannon.js/commit/680816a92102829a4b262d315bbc9c445ccd59c1))
+* add mailsender api ([#8](https://github.com/kannon-email/kannon.js/issues/8)) ([7a28ad5](https://github.com/kannon-email/kannon.js/commit/7a28ad5954f2f9dc6d4f3e0d24e85ddd8a232d08))
+* add readme ([cd4f053](https://github.com/kannon-email/kannon.js/commit/cd4f053a8901eb53f9f844ebbd080b9a959b334d))
+* first commit ([8189e40](https://github.com/kannon-email/kannon.js/commit/8189e40dc9019ec1e46106b953c69046c0c9fd85))
+* implement to and cc headers ([#7](https://github.com/kannon-email/kannon.js/issues/7)) ([c7766a4](https://github.com/kannon-email/kannon.js/commit/c7766a4ba4ce5fdf1311c06eec26c31b1d910f9a))
+* improve recipents dx ([12fd296](https://github.com/kannon-email/kannon.js/commit/12fd296811161c535416f96ac6a448ab722e4cae))
+* migrate to Connect-RPC and Buf, update project structure and dependencies ([#3](https://github.com/kannon-email/kannon.js/issues/3)) ([b2f9aff](https://github.com/kannon-email/kannon.js/commit/b2f9affef304a70ca8f053ef4f797fcaaffedbe6))
+* refactor kannon cli ([141d7eb](https://github.com/kannon-email/kannon.js/commit/141d7ebf1a5fd6f7ee7387a94b600b975a02f034))
+* refactor methods with better names ([86897f1](https://github.com/kannon-email/kannon.js/commit/86897f1aca2da6c19d24d0409c5530e921b2a274))
+
+
+### Bug Fixes
+
+* add .js extensions to protobuf imports for ESM compatibility ([9f05478](https://github.com/kannon-email/kannon.js/commit/9f0547818d55e1328a08da56683fa742f41c5c94))
+* add recipents type export ([f8e0054](https://github.com/kannon-email/kannon.js/commit/f8e005450049ed8ee7ea16bfbd47b8c2887f7139))
+
 ## v1.0.1
 
 ### Bug Fixes
