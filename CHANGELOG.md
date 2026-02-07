@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.1
+
+### Bug Fixes
+
+- Export `Recipient` type from main entry point to allow proper TypeScript imports
+
+Previously, the `Recipient` type was defined but not exported, making it impossible to import it directly from the package:
+```ts
+// Now works correctly
+import { type Recipient } from 'kannon.js';
+```
+
+---
+
 ## v1.0.0
 
 ### Overview

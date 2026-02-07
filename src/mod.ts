@@ -12,3 +12,4 @@ export {
   type SendParams,
   type SendResult,
 } from "./mail-sender.js";
+export type { Recipient } from "./recipient.js";
