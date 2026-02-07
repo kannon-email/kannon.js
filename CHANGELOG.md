@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.0.2
+
+### Bug Fixes
+
+#### ESM Import Compatibility
+
+Fixed module resolution errors in strict ESM environments (Node.js production) by adding `.js` extensions to protobuf-generated imports.
+
+**Problem**: Production deployments were failing with `Cannot find module` errors:
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '.../kannon.js/lib/proto/kannon/mailer/types/send_pb'
+```
+
+**Root Cause**: Generated protobuf files used extensionless imports (e.g., `from "../types/send_pb"`), which fail in Node.js strict ESM mode where file extensions are mandatory for relative imports.
+
+**Solution**: Updated protobuf generator configuration (`buf.gen.yaml`) to include `.js` extensions in all generated imports:
+```typescript
+// Before (broken in production)
+import { file_kannon_mailer_types_send } from "../types/send_pb";
+
+// After (ESM compatible)
+import { file_kannon_mailer_types_send } from "../types/send_pb.js";
+```
+
+**Changes**:
+- Updated `buf.gen.yaml`: Changed `import_extension=none` to `import_extension=.js`
+- Regenerated all protobuf TypeScript files with `.js` extensions
+- All existing tests pass, no breaking changes to public API
+
+This fix ensures kannon.js works correctly in all Node.js ESM environments, including strict production configurations.
+
+---
+
 ## v1.0.1
 
 ### Bug Fixes
