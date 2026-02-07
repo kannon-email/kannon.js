@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/kannon-email/kannon.js/compare/kannon.js-v1.0.1...kannon.js-v1.0.2) (2026-02-07)
+
+
+### Bug Fixes
+
+* add .js extensions to protobuf imports for ESM compatibility ([9f05478](https://github.com/kannon-email/kannon.js/commit/9f0547818d55e1328a08da56683fa742f41c5c94))
+
 ## v1.0.2
 
 ### Bug Fixes
