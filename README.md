@@ -104,6 +104,12 @@ await mailSender.send({
 });
 ```
 
+### Tracking
+
+Mail sent through `MailSender` is **never tracked**: opens and links are both forced to `off`, and no `List-Unsubscribe` header is emitted. A plain mail client sends mail, it does not measure it.
+
+Use `KannonCli` directly for campaign mail, where [tracking](#tracking-policy) and [one-click unsubscribe](#one-click-unsubscribe-rfc-8058) are decisions to make.
+
 ### MailSender API Reference
 
 #### SendParams
@@ -124,6 +130,9 @@ await mailSender.send({
 |-------|------|-------------|
 | `messageId` | `string` | Unique identifier for the sent message |
 | `scheduledTime` | `Date \| undefined` | Scheduled delivery time (if applicable) |
+| `acceptedCount` | `number` | Recipients accepted and queued for delivery |
+| `rejectedCount` | `number` | Recipients refused at intake |
+| `rejectedRecipients` | `RejectedRecipient[]` | Every refusal, with its reason |
 
 ---
 
@@ -350,6 +359,101 @@ await kannon.sendHtml(
 );
 ```
 
+### Tracking Policy
+
+How much of an email's engagement may be observed is a policy stated at three levels — domain, batch and recipient. The effective policy is the **most restrictive** of the three: a level closer to the recipient may only narrow what the level above allows, never widen it.
+
+The modes, ordered by increasing collection:
+
+| Mode | Meaning |
+|------|---------|
+| `off` | The channel is not observed at all |
+| `anonymous` | Counted in aggregate only; nothing retained that isolates one recipient |
+| `pseudonymous` | Reserved by the server: selecting it rejects the recipient |
+| `identified` | Attributed to the recipient |
+| `full` | Attributed, plus the IP address and user agent of the request |
+
+Omitting an axis, or the policy altogether, states nothing and imposes no restriction of its own: the domain ceiling configured on the server decides.
+
+#### Per Batch
+
+```ts
+await kannon.sendHtml(['user@example.com'], 'Password Reset', html, {
+  tracking: { opens: 'off', links: 'off' },
+});
+```
+
+A batch asking for more than its domain allows **fails the whole call**.
+
+#### Per Recipient
+
+State here the consent you hold in your own CRM:
+
+```ts
+await kannon.sendHtml(
+  [
+    { email: 'consented@example.com', tracking: { opens: 'identified', links: 'identified' } },
+    { email: 'opted-out@example.com', tracking: { opens: 'off', links: 'off' } },
+  ],
+  'Newsletter',
+  html,
+);
+```
+
+A recipient asking for more than its domain allows is rejected on its own, with reason `tracking_above_ceiling`, while the rest of the batch proceeds.
+
+#### Opting a Single Link Out
+
+A link carrying `data-no-track` is left untouched by click tracking:
+
+```html
+<a href="https://example.com/unsubscribe" data-no-track>Unsubscribe</a>
+```
+
+### One-Click Unsubscribe (RFC 8058)
+
+Kannon can carry a `List-Unsubscribe` / `List-Unsubscribe-Post` pair pointing at **your own** endpoint. It personalises the URL, emits it and DKIM-signs it, and does nothing else with it: it never calls the endpoint, keeps no suppression list, and records no engagement when a recipient uses it.
+
+```ts
+await kannon.sendHtml(recipients, 'Newsletter', html, {
+  oneClickUnsubscribe: {
+    urlTemplate: 'https://your-domain.com/unsub?email={{ email }}&token={{ token }}',
+  },
+});
+```
+
+Four things the API holds you to:
+
+1. **The URL must be `https`.** A template that is malformed, relative or non-https fails the whole call.
+2. **Your endpoint must accept `POST`** with body `List-Unsubscribe=One-Click` and unsubscribe with no further confirmation.
+3. **Pass raw field values, not pre-encoded ones.** Kannon percent-encodes every value it substitutes.
+4. **Every placeholder must resolve for every recipient.** One whose fields leave a placeholder unresolved is rejected with reason `unsubscribe_url_unresolved`. `{{ email }}` always resolves; a custom `{{ token }}` only does if you pass it for that recipient.
+
+There is no domain-wide default and no per-recipient override: an unsubscribe header on a password reset offers the recipient something you cannot honour.
+
+### Rejected Recipients
+
+A recipient refused at intake does not fail the send: it is reported back so you can reconcile what was actually queued.
+
+```ts
+const result = await kannon.sendHtml(recipients, 'Newsletter', html);
+
+console.log(`${result.acceptedCount} queued, ${result.rejectedCount} rejected`);
+
+for (const { email, reason } of result.rejectedRecipients) {
+  console.warn(`${email} was rejected: ${reason}`);
+}
+```
+
+| Reason | Meaning |
+|--------|---------|
+| `invalid_email` | The address is empty or otherwise unusable |
+| `tracking_above_ceiling` | The recipient's policy asks for more than its domain allows |
+| `unsupported_tracking_mode` | The recipient stated a mode the server will not act on |
+| `unsubscribe_url_unresolved` | A placeholder in the unsubscribe URL template was left unresolved |
+
+Treat an unrecognised value as a refusal of unknown cause: the set grows as new causes are added.
+
 ### Advanced Configuration
 
 #### Custom Domain Setup
@@ -463,7 +567,37 @@ type SendOptions = {
     to?: string[]; // Additional To header addresses
     cc?: string[]; // CC header addresses
   };
+  tracking?: TrackingPolicy; // Batch-level tracking policy
+  oneClickUnsubscribe?: {
+    // List-Unsubscribe endpoint (RFC 8058)
+    urlTemplate: string;
+  };
 };
+```
+
+### Result
+
+```ts
+type KannonResult = {
+  messageId: string;
+  templateId: string;
+  scheduledTime: Date;
+  acceptedCount: number; // Recipients queued for delivery
+  rejectedCount: number; // Recipients refused at intake
+  rejectedRecipients: RejectedRecipient[];
+};
+
+type RejectedRecipient = {
+  email: string;
+  reason: RejectionReason;
+};
+
+type RejectionReason =
+  | 'invalid_email'
+  | 'tracking_above_ceiling'
+  | 'unsupported_tracking_mode'
+  | 'unsubscribe_url_unresolved'
+  | (string & Record<never, never>); // The set grows as new causes are added
 ```
 
 ### Types
@@ -475,7 +609,15 @@ type Recipient =
       // Email with personalized fields
       email: string;
       fields?: Record<string, string>;
+      tracking?: TrackingPolicy; // Consent held for this recipient
     };
+
+type TrackingMode = 'off' | 'anonymous' | 'pseudonymous' | 'identified' | 'full';
+
+type TrackingPolicy = {
+  opens?: TrackingMode;
+  links?: TrackingMode;
+};
 
 type KannonSender = {
   email: string;
