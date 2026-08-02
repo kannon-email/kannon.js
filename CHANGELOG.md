@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/kannon-email/kannon.js/compare/v1.0.2...v1.1.0) (2026-08-02)
+
+
+### Features
+
+* expose tracking policy, unsubscribe and rejected recipients ([e21e58e](https://github.com/kannon-email/kannon.js/commit/e21e58e7091bc4960d97fac8a7e42983118c8ec7))
+* **mail-sender:** never track mail sent as plain mail ([8cb43f3](https://github.com/kannon-email/kannon.js/commit/8cb43f36ca0c7f563d252b49ed9e9c659da541d3))
+* **proto:** sync mailer protos and add tracking types ([175265f](https://github.com/kannon-email/kannon.js/commit/175265fb8846b621124d96b4db54a8db2f2edae6))
+
+
+### Bug Fixes
+
+* set include-component-in-tag to false for simple v-prefixed tags ([e4a7219](https://github.com/kannon-email/kannon.js/commit/e4a721983a03b443db73607ce55cc8d4026732b0))
+
 ## [1.0.2](https://github.com/kannon-email/kannon.js/compare/kannon.js-v1.0.1...kannon.js-v1.0.2) (2026-02-07)
 
 
