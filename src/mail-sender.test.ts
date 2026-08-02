@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { KannonCli } from "./kannon";
-import { MailSender } from "./mail-sender";
+import type { KannonCli } from "./kannon.js";
+import { MailSender } from "./mail-sender.js";
 
 describe("MailSender", () => {
   let mockClient: KannonCli;
@@ -9,9 +9,12 @@ describe("MailSender", () => {
   beforeEach(() => {
     mockClient = {
       sendHtml: vi.fn().mockResolvedValue({
+        acceptedCount: 1,
         messageId: "test-id",
-        templateId: "",
+        rejectedCount: 0,
+        rejectedRecipients: [],
         scheduledTime: new Date("2024-01-01T00:00:00Z"),
+        templateId: "",
       }),
     } as unknown as KannonCli;
 
@@ -20,9 +23,9 @@ describe("MailSender", () => {
 
   it("maps single to recipient correctly", async () => {
     await mailSender.send({
-      to: "user@example.com",
-      subject: "Test",
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -30,16 +33,16 @@ describe("MailSender", () => {
       "Test",
       "<p>Hello</p>",
       expect.objectContaining({
-        headers: { to: ["user@example.com"], cc: undefined },
+        headers: { cc: undefined, to: ["user@example.com"] },
       })
     );
   });
 
   it("maps multiple to recipients correctly", async () => {
     await mailSender.send({
-      to: ["user1@example.com", "user2@example.com"],
-      subject: "Test",
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: ["user1@example.com", "user2@example.com"],
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -48,8 +51,8 @@ describe("MailSender", () => {
       "<p>Hello</p>",
       expect.objectContaining({
         headers: {
-          to: ["user1@example.com", "user2@example.com"],
           cc: undefined,
+          to: ["user1@example.com", "user2@example.com"],
         },
       })
     );
@@ -57,10 +60,10 @@ describe("MailSender", () => {
 
   it("includes cc recipients in all recipients and headers", async () => {
     await mailSender.send({
-      to: "user@example.com",
       cc: "cc@example.com",
-      subject: "Test",
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -68,17 +71,17 @@ describe("MailSender", () => {
       "Test",
       "<p>Hello</p>",
       expect.objectContaining({
-        headers: { to: ["user@example.com"], cc: ["cc@example.com"] },
+        headers: { cc: ["cc@example.com"], to: ["user@example.com"] },
       })
     );
   });
 
   it("includes multiple cc recipients correctly", async () => {
     await mailSender.send({
-      to: "user@example.com",
       cc: ["cc1@example.com", "cc2@example.com"],
-      subject: "Test",
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -87,8 +90,8 @@ describe("MailSender", () => {
       "<p>Hello</p>",
       expect.objectContaining({
         headers: {
-          to: ["user@example.com"],
           cc: ["cc1@example.com", "cc2@example.com"],
+          to: ["user@example.com"],
         },
       })
     );
@@ -96,10 +99,10 @@ describe("MailSender", () => {
 
   it("includes bcc in recipients but not in headers", async () => {
     await mailSender.send({
-      to: "user@example.com",
       bcc: "bcc@example.com",
-      subject: "Test",
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -107,18 +110,18 @@ describe("MailSender", () => {
       "Test",
       "<p>Hello</p>",
       expect.objectContaining({
-        headers: { to: ["user@example.com"], cc: undefined },
+        headers: { cc: undefined, to: ["user@example.com"] },
       })
     );
   });
 
   it("handles all recipient types together", async () => {
     await mailSender.send({
-      to: ["to1@example.com", "to2@example.com"],
-      cc: "cc@example.com",
       bcc: ["bcc1@example.com", "bcc2@example.com"],
-      subject: "Test",
+      cc: "cc@example.com",
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: ["to1@example.com", "to2@example.com"],
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -133,8 +136,8 @@ describe("MailSender", () => {
       "<p>Hello</p>",
       expect.objectContaining({
         headers: {
-          to: ["to1@example.com", "to2@example.com"],
           cc: ["cc@example.com"],
+          to: ["to1@example.com", "to2@example.com"],
         },
       })
     );
@@ -142,14 +145,14 @@ describe("MailSender", () => {
 
   it("passes attachments through unchanged", async () => {
     const attachments = [
-      { filename: "test.pdf", content: Buffer.from("test content") },
+      { content: Buffer.from("test content"), filename: "test.pdf" },
     ];
 
     await mailSender.send({
-      to: "user@example.com",
-      subject: "Test",
-      content: "<p>Hello</p>",
       attachments,
+      content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -166,10 +169,10 @@ describe("MailSender", () => {
     const scheduledTime = new Date("2024-12-25T10:00:00Z");
 
     await mailSender.send({
-      to: "user@example.com",
-      subject: "Test",
       content: "<p>Hello</p>",
       scheduledTime,
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(mockClient.sendHtml).toHaveBeenCalledWith(
@@ -182,16 +185,70 @@ describe("MailSender", () => {
     );
   });
 
-  it("returns messageId and scheduledTime from result", async () => {
-    const result = await mailSender.send({
-      to: "user@example.com",
-      subject: "Test",
+  it("always disables open and link tracking", async () => {
+    await mailSender.send({
       content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
+    });
+
+    expect(mockClient.sendHtml).toHaveBeenCalledWith(
+      ["user@example.com"],
+      "Test",
+      "<p>Hello</p>",
+      expect.objectContaining({ tracking: { links: "off", opens: "off" } })
+    );
+  });
+
+  it("never emits an unsubscribe header", async () => {
+    await mailSender.send({
+      content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
+    });
+
+    const [call] = vi.mocked(mockClient.sendHtml).mock.calls;
+    expect(call[3]?.oneClickUnsubscribe).toBeUndefined();
+  });
+
+  it("returns messageId, scheduledTime and intake counts from result", async () => {
+    const result = await mailSender.send({
+      content: "<p>Hello</p>",
+      subject: "Test",
+      to: "user@example.com",
     });
 
     expect(result).toEqual({
+      acceptedCount: 1,
       messageId: "test-id",
+      rejectedCount: 0,
+      rejectedRecipients: [],
       scheduledTime: new Date("2024-01-01T00:00:00Z"),
     });
+  });
+
+  it("reports rejected recipients instead of failing the send", async () => {
+    const rejectedRecipients = [
+      { email: "not-an-email", reason: "invalid_email" },
+      { email: "opted-out@example.com", reason: "tracking_above_ceiling" },
+    ];
+    mockClient.sendHtml = vi.fn().mockResolvedValue({
+      acceptedCount: 1,
+      messageId: "test-id",
+      rejectedCount: 2,
+      rejectedRecipients,
+      scheduledTime: new Date("2024-01-01T00:00:00Z"),
+      templateId: "",
+    });
+
+    const result = await mailSender.send({
+      content: "<p>Hello</p>",
+      subject: "Test",
+      to: ["user@example.com", "not-an-email", "opted-out@example.com"],
+    });
+
+    expect(result.acceptedCount).toBe(1);
+    expect(result.rejectedCount).toBe(2);
+    expect(result.rejectedRecipients).toEqual(rejectedRecipients);
   });
 });
