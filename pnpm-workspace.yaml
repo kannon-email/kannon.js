@@ -3,3 +3,7 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - protobufjs
+
+# vite still allows esbuild ^0.27.0, which has a known advisory (GHSA-g7r4-m6w7-qqqr).
+overrides:
+  esbuild: ^0.28.1
