@@ -8,13 +8,25 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      # Releases created with the default GITHUB_TOKEN do not trigger other
+      # workflows, so the publish workflow has to be dispatched explicitly.
+      # workflow_dispatch is the one event exempt from that restriction.
+      - name: Dispatch npm publish
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: gh workflow run publish.yaml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$TAG"

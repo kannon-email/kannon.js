@@ -2,6 +2,12 @@ name: Publish Package to npmjs
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag to publish (e.g. v1.1.0)'
+        required: true
+        type: string
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,6 +16,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
