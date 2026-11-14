@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: This is the main entry point
 export {
   KannonCli,
   type KannonConfig,
