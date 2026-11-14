@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/kannon-email/kannon.js/compare/v1.1.0...v2.0.0) (2026-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* the client talks to the REST API. KannonConfig.endpoint is optional and defaults to https://api.kannon.email/v1; a gRPC endpoint no longer works. KannonResult.messageId and SendResult.messageId are renamed to batchId, and KannonResult.templateId is removed. A send in which every recipient is refused now throws a KannonError with code no_recipients_accepted instead of resolving with acceptedCount 0. Errors are KannonError instead of ConnectError. A recipient or global field named email rejects the recipient with reason reserved_field.
+
+### Features
+
+* send through the REST v1 API instead of gRPC ([a646c2e](https://github.com/kannon-email/kannon.js/commit/a646c2e925198859a12f258da001eec2dc743132))
+
 ## [1.1.0](https://github.com/kannon-email/kannon.js/compare/v1.0.2...v1.1.0) (2026-08-02)
 
 
