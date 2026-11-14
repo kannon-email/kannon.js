@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { KannonCli } from "./kannon.js";
 import { KannonError } from "./kannon-error.js";
 
-const UUID = /^[0-9a-f-]{36}$/;
+const UUID = /^[0-9a-f-]{36}$/u;
 const SENDER = { alias: "Test Sender", email: "sender@example.com" };
 
 const CREATED = {

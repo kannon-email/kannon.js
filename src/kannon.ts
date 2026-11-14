@@ -12,7 +12,7 @@ import {
 } from "./tracking.js";
 
 const DEFAULT_ENDPOINT = "https://api.kannon.email/v1";
-const TRAILING_SLASHES = /\/+$/;
+const TRAILING_SLASHES = /\/+$/u;
 
 type ContentWire =
   | { html: string; type: "html" }
