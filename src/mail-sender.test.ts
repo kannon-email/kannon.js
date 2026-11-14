@@ -10,11 +10,11 @@ describe("MailSender", () => {
     mockClient = {
       sendHtml: vi.fn().mockResolvedValue({
         acceptedCount: 1,
-        messageId: "test-id",
+        batchId: "test-id",
         rejectedCount: 0,
         rejectedRecipients: [],
+        replayed: false,
         scheduledTime: new Date("2024-01-01T00:00:00Z"),
-        templateId: "",
       }),
     } as unknown as KannonCli;
 
@@ -211,7 +211,7 @@ describe("MailSender", () => {
     expect(call[3]?.oneClickUnsubscribe).toBeUndefined();
   });
 
-  it("returns messageId, scheduledTime and intake counts from result", async () => {
+  it("returns batchId, scheduledTime and intake counts from result", async () => {
     const result = await mailSender.send({
       content: "<p>Hello</p>",
       subject: "Test",
@@ -220,7 +220,7 @@ describe("MailSender", () => {
 
     expect(result).toEqual({
       acceptedCount: 1,
-      messageId: "test-id",
+      batchId: "test-id",
       rejectedCount: 0,
       rejectedRecipients: [],
       scheduledTime: new Date("2024-01-01T00:00:00Z"),
@@ -229,16 +229,20 @@ describe("MailSender", () => {
 
   it("reports rejected recipients instead of failing the send", async () => {
     const rejectedRecipients = [
-      { email: "not-an-email", reason: "invalid_email" },
-      { email: "opted-out@example.com", reason: "tracking_above_ceiling" },
+      { email: "not-an-email", index: 1, reason: "invalid_email" },
+      {
+        email: "opted-out@example.com",
+        index: 2,
+        reason: "tracking_above_ceiling",
+      },
     ];
     mockClient.sendHtml = vi.fn().mockResolvedValue({
       acceptedCount: 1,
-      messageId: "test-id",
+      batchId: "test-id",
       rejectedCount: 2,
       rejectedRecipients,
+      replayed: false,
       scheduledTime: new Date("2024-01-01T00:00:00Z"),
-      templateId: "",
     });
 
     const result = await mailSender.send({

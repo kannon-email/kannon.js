@@ -1,10 +1,3 @@
-import { create } from "@bufbuild/protobuf";
-import {
-  TrackingMode as ProtoTrackingMode,
-  type TrackingPolicy as ProtoTrackingPolicy,
-  TrackingPolicySchema,
-} from "./proto/kannon/tracking/types/tracking_pb.js";
-
 /**
  * How much of one engagement channel may be observed.
  *
@@ -47,26 +40,23 @@ export interface TrackingPolicy {
   opens?: TrackingMode;
 }
 
-const TRACKING_MODES: Record<TrackingMode, ProtoTrackingMode> = {
-  anonymous: ProtoTrackingMode.ANONYMOUS,
-  full: ProtoTrackingMode.FULL,
-  identified: ProtoTrackingMode.IDENTIFIED,
-  off: ProtoTrackingMode.OFF,
-  pseudonymous: ProtoTrackingMode.PSEUDONYMOUS,
-};
-
-function parseTrackingMode(mode: TrackingMode | undefined): ProtoTrackingMode {
-  return mode ? TRACKING_MODES[mode] : ProtoTrackingMode.UNSPECIFIED;
+export interface TrackingWire {
+  links?: TrackingMode;
+  opens?: TrackingMode;
 }
 
-export function parseTrackingPolicy(
+export function toTrackingWire(
   policy: TrackingPolicy | undefined
-): ProtoTrackingPolicy | undefined {
+): TrackingWire | undefined {
   if (!policy) {
     return;
   }
-  return create(TrackingPolicySchema, {
-    links: parseTrackingMode(policy.links),
-    opens: parseTrackingMode(policy.opens),
-  });
+  const wire: TrackingWire = {};
+  if (policy.opens) {
+    wire.opens = policy.opens;
+  }
+  if (policy.links) {
+    wire.links = policy.links;
+  }
+  return wire;
 }
