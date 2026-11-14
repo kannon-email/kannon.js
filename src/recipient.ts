@@ -1,13 +1,17 @@
-import { create } from "@bufbuild/protobuf";
 import {
-  type Recipient as KannonRecipient,
-  RecipientSchema,
-} from "./proto/kannon/mailer/types/send_pb.js";
-import { parseTrackingPolicy, type TrackingPolicy } from "./tracking.js";
+  type TrackingPolicy,
+  type TrackingWire,
+  toTrackingWire,
+} from "./tracking.js";
 
 export type Recipient =
   | {
       email: string;
+      /**
+       * Personalisation values for this recipient, overriding global fields.
+       * `email` is reserved: supplying it rejects the recipient with reason
+       * `reserved_field`.
+       */
       fields?: Record<string, string>;
       /**
        * The consent this recipient has given, as held in your own CRM.
@@ -21,13 +25,23 @@ export type Recipient =
     }
   | string;
 
-export function parseRecipient(recipient: Recipient): KannonRecipient {
+export interface RecipientWire {
+  email: string;
+  fields?: Record<string, string>;
+  tracking?: TrackingWire;
+}
+
+export function toRecipientWire(recipient: Recipient): RecipientWire {
   if (typeof recipient === "string") {
-    return create(RecipientSchema, { email: recipient, fields: {} });
+    return { email: recipient };
   }
-  return create(RecipientSchema, {
-    email: recipient.email,
-    fields: recipient.fields ?? {},
-    tracking: parseTrackingPolicy(recipient.tracking),
-  });
+  const wire: RecipientWire = { email: recipient.email };
+  if (recipient.fields && Object.keys(recipient.fields).length > 0) {
+    wire.fields = recipient.fields;
+  }
+  const tracking = toTrackingWire(recipient.tracking);
+  if (tracking) {
+    wire.tracking = tracking;
+  }
+  return wire;
 }

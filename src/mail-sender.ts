@@ -12,8 +12,8 @@ const NO_TRACKING: TrackingPolicy = { links: "off", opens: "off" };
  * Email attachment.
  */
 export interface Attachment {
-  /** The file content as a Buffer. */
-  content: Buffer;
+  /** The file content. */
+  content: Uint8Array;
   /** The filename that will appear in the email. */
   filename: string;
 }
@@ -24,8 +24,8 @@ export interface Attachment {
 export interface SendResult {
   /** How many recipients were accepted and are queued for delivery. */
   acceptedCount: number;
-  /** Unique identifier for the sent message. */
-  messageId: string;
+  /** Identifier of the created Batch. */
+  batchId: string;
   /** How many recipients were refused at intake. */
   rejectedCount: number;
   /** Every recipient refused at intake, with the reason for the refusal. */
@@ -123,7 +123,7 @@ export class MailSender {
    * Sends an email.
    *
    * @param params - The email parameters including recipients, subject, and content.
-   * @returns A promise that resolves with the message ID and scheduled time.
+   * @returns A promise that resolves with the Batch ID, intake counts and scheduled time.
    *
    * @remarks
    * - The `to` field is required and must have at least one recipient.
@@ -132,7 +132,8 @@ export class MailSender {
    * - The `content` field accepts HTML strings.
    * - Open and link tracking are always disabled.
    * - Recipients refused at intake are reported in `rejectedRecipients`
-   *   instead of failing the send.
+   *   instead of failing the send; it throws a `KannonError` with code
+   *   `no_recipients_accepted` only when every recipient is refused.
    */
   async send(params: SendParams): Promise<SendResult> {
     const toVec = mapToArray(params.to);
@@ -160,7 +161,7 @@ export class MailSender {
 
     return {
       acceptedCount: result.acceptedCount,
-      messageId: result.messageId,
+      batchId: result.batchId,
       rejectedCount: result.rejectedCount,
       rejectedRecipients: result.rejectedRecipients,
       scheduledTime: result.scheduledTime,

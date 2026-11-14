@@ -1,11 +1,12 @@
 {
   "name": "kannon.js",
   "version": "1.1.0",
-  "description": "Kannon node client libreary",
+  "description": "Official Node.js client library for Kannon, the cloud-native email sender",
   "keywords": [
     "email",
     "node",
-    "grpc"
+    "kannon",
+    "rest"
   ],
   "repository": {
     "type": "git",
@@ -30,15 +31,8 @@
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@bufbuild/protobuf": "^2.13.0",
-    "@connectrpc/connect": "^2.1.2",
-    "@connectrpc/connect-node": "^2.1.2"
-  },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",
-    "@bufbuild/buf": "^1.72.0",
-    "@bufbuild/protoc-gen-es": "^2.13.0",
     "@types/node": "^26.1.2",
     "@vitest/coverage-v8": "^4.1.10",
     "@vitest/ui": "^4.1.10",

@@ -7,8 +7,10 @@ export {
   type OneClickUnsubscribe,
   type RejectedRecipient,
   type RejectionReason,
+  type ReplyTo,
   type SendOptions,
 } from "./kannon.js";
+export { KannonError, type KannonFieldError } from "./kannon-error.js";
 export {
   type Attachment,
   MailSender,
